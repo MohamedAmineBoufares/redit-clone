@@ -5,9 +5,15 @@ import Avatar from "../Avatar/Avatar";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { FormData } from "../../utils/types";
 import { useState } from "react";
+import { useMutation } from "@apollo/client";
+import { ADD_POST } from "../../graphql/mutations";
+import client from "../../apollo-client";
+import { GET_SUBREDDIT_BY_TOPIC } from "../../graphql/queries";
 
 function PostBox() {
   const { data: session } = useSession();
+
+  const [addPost] = useMutation(ADD_POST);
 
   const [imageBoxOpen, setImageBoxOpen] = useState<boolean>(false);
 
@@ -21,6 +27,24 @@ function PostBox() {
 
   const onSubmit = handleSubmit(async (formData) => {
     console.log(formData);
+
+    try {
+      const {
+        data: { getSubredditListByTopic },
+      } = await client.query({
+        query: GET_SUBREDDIT_BY_TOPIC,
+        variables: {
+          topic: formData.subreddit,
+        },
+      });
+
+      const subbredditExists = getSubredditListByTopic.length > 0;
+
+      if (!subbredditExists) {
+      }
+    } catch (error) {
+      console.log(error);
+    }
   });
 
   return (
